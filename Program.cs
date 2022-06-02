@@ -5,18 +5,20 @@ class Node<TK, TV> {
     public TV Val;
     public Node<TK, TV>? Left;
     public Node<TK, TV>? Right;
+    public int height;
 
     public Node(TK key, TV val) {
         this.Key = key;
         this.Val = val;
         this.Left = null;
         this.Right = null;
+        this.height = 1;
     }
 }
 
 class AVL_TREE<TK, TV> where TK:IComparable
 {
-    private Node<TK, TV>? _root;
+    public Node<TK, TV>? _root;
 
     public AVL_TREE() {
         this._root = null;
@@ -36,6 +38,58 @@ class AVL_TREE<TK, TV> where TK:IComparable
         help(this._root);
         WriteLine();
     }
+    
+    public void printPreorder()
+    {
+        void help(Node<TK, TV> n)
+        {
+            if (n == null) {
+                return;
+            }
+            Write($"{n.Key}:{n.height} ");
+            help(n.Left);
+            help(n.Right);
+        }
+        help(this._root);
+        WriteLine();
+    }
+    
+    private static int get_max(Node<TK, TV>? a, Node<TK, TV>? b) {
+        if (a == null && b == null) {
+            return 0;
+        }
+        else if (a == null && b != null) {
+            return b.height;
+        }
+        else if (b == null && a != null) {
+            return a.height;
+        }
+        else {
+            return Math.Max(a.height, b.height);
+        }
+    }
+
+    public static Node<TK, TV> RightRotate(Node<TK, TV> a)
+    {
+        var new_r = a.Left;
+        a.Left = new_r.Right;
+        new_r.Right = a;
+
+        new_r.Right.height = get_max(new_r.Right.Left, new_r.Right.Right) + 1;
+        new_r.height = get_max(new_r.Left, new_r.Right) + 1;
+        return new_r;
+    }
+    
+    public static Node<TK, TV> LeftRotate(Node<TK, TV> a)
+    {
+        var new_r = a.Right;
+        a.Right = new_r.Left;
+        new_r.Left = a;
+        
+        new_r.Left.height = get_max(new_r.Left.Left, new_r.Left.Right) + 1;
+        new_r.height = get_max(new_r.Left, new_r.Right) + 1;
+        return new_r;
+    }
 
     private static Node<TK,TV> add_help(Node<TK, TV> n, TK key, TV val) {
         if (n == null) {
@@ -51,22 +105,29 @@ class AVL_TREE<TK, TV> where TK:IComparable
         else {
             n.Val = val;
         }
+        
+        n.height = get_max(n.Left, n.Right) + 1;
+        int balanceFactor = n.Left.height - n.Right.height;
+
+        if (balanceFactor > 1 && key.CompareTo(n.Left.Key) < 0) {
+            return RightRotate(n);
+        }
+        if (balanceFactor < -1 && key.CompareTo(n.Left.Key) > 0) {
+            return LeftRotate(n);
+        }
+        if (balanceFactor > 1 && key.CompareTo(n.Left.Key) > 0) {
+            n.Left = LeftRotate(n.Left);
+            return RightRotate(n);
+        }
+        if (balanceFactor < -1 && key.CompareTo(n.Left.Key) < 0) {
+            n.Right = RightRotate(n.Right);
+            return LeftRotate(n);
+        }
         return n;
     }
 
     public void Add(TK key, TV val) {
         this._root = add_help(this._root, key, val);
-    }
-    private void Replace(Node<TK,TV> parent, Node<TK,TV> n, Node<TK,TV> novy)
-    {
-        if (parent == null)
-            this._root = novy;
-        else if (parent.Left == n)
-            parent.Left = novy;
-        else if (parent.Right == n)
-            parent.Right = novy;
-        else
-            throw new System.Exception("Not a child");
     }
 
     private Node<TK, TV> remove_help(Node<TK, TV> n, TK key) {
@@ -114,8 +175,7 @@ class Program
 {
     static void Main()
     {
-        // test_1();
-        
+        test_4();
     }
     
     // recursive bst deletion
@@ -134,7 +194,7 @@ class Program
         tree.Remove(30);
         tree.printInorder();
     }
-
+    // General test for Add, Remove with 50 random elements
     static void test_2() {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
         Random r = new Random(200);
@@ -150,5 +210,36 @@ class Program
         tree.Remove(720);
         tree.Remove(934);
         tree.printInorder();
+    }
+    
+    // Right rotate test
+    static void test_3()
+    {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        tree.Add(50, "hello");
+        tree.Add(30, "hello");
+        tree.Add(70, "hello");
+        tree.Add(20, "hello");
+        tree.Add(40, "hello");
+        tree.Add(15, "hello");
+        tree.Add(25, "hello");
+        tree.printPreorder();
+        tree._root = tree.RightRotate(tree._root);
+        tree.printPreorder();
+    }
+    
+    // Left rotate test
+    static void test_4() {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        tree.Add(50, "hello");
+        tree.Add(30, "hello");
+        tree.Add(70, "hello");
+        tree.Add(60, "hello");
+        tree.Add(80, "hello");
+        tree.Add(75, "hello");
+        tree.Add(85, "hello");
+        tree.printPreorder();
+        tree._root = tree.LeftRotate(tree._root);
+        tree.printPreorder();
     }
 }
