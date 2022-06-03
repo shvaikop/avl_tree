@@ -29,6 +29,43 @@ class AVL_TREE<TK, TV> where TK:IComparable
 
     public int Count => this.count;
 
+    public SortedDictionary<TK, TV> Items {
+        get {
+            SortedDictionary<TK, TV> dict = new SortedDictionary<TK, TV>();
+            void help(Node<TK, TV>? n) {
+                if (n == null)
+                    return;
+                dict.Add(n.Key, n.Val);
+                help(n.Left);
+                help(n.Right);
+            }
+            help(this._root);
+            return dict;
+        }
+    }
+
+    public IEnumerable<TV> this[TK min, TK max] {
+        get {
+            var list = new List<TV>();
+
+            void help(Node<TK, TV>? n) {
+                if (n.Key.CompareTo(min) >= 0 && n.Key.CompareTo(max) <= 0) {
+                    list.Add(n.Val);
+                    help(n.Left);
+                    help(n.Right);
+                }
+                else if (n.Key.CompareTo(min) < 0) {
+                    help(n.Right);
+                }
+                else if (n.Key.CompareTo(max) > 0) {
+                    help(n.Left);
+                }
+            }
+            help(this._root);
+            return list;
+        }
+    }
+
     public void printInorder()
     {
         void help(Node<TK, TV> n)
