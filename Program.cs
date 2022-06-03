@@ -32,17 +32,15 @@ class AVL_TREE<TK, TV> where TK:IComparable
                 return;
             }
             help(n.Left);
-            Write(n.Key + " ");
+            Write($"{n.Key}:{n.height} ");
             help(n.Right);
         }
         help(this._root);
         WriteLine();
     }
     
-    public void printPreorder()
-    {
-        void help(Node<TK, TV> n)
-        {
+    public void printPreorder() {
+        void help(Node<TK, TV> n) {
             if (n == null) {
                 return;
             }
@@ -91,6 +89,17 @@ class AVL_TREE<TK, TV> where TK:IComparable
         return new_r;
     }
 
+    private static int CalcBalance(Node<TK, TV> n)
+    {
+        if (n == null)
+        {
+            return 0;
+        }
+        int l = n.Left == null ? 0 : n.Left.height;
+        int r = n.Right == null ? 0 : n.Right.height;
+        return l - r;
+    }
+
     private static Node<TK,TV> add_help(Node<TK, TV> n, TK key, TV val) {
         if (n == null) {
             return new Node<TK, TV>(key, val);
@@ -107,19 +116,19 @@ class AVL_TREE<TK, TV> where TK:IComparable
         }
         
         n.height = get_max(n.Left, n.Right) + 1;
-        int balanceFactor = n.Left.height - n.Right.height;
+        int balanceFactor = CalcBalance(n);
 
         if (balanceFactor > 1 && key.CompareTo(n.Left.Key) < 0) {
             return RightRotate(n);
         }
-        if (balanceFactor < -1 && key.CompareTo(n.Left.Key) > 0) {
+        if (balanceFactor < -1 && key.CompareTo(n.Right.Key) > 0) {
             return LeftRotate(n);
         }
         if (balanceFactor > 1 && key.CompareTo(n.Left.Key) > 0) {
             n.Left = LeftRotate(n.Left);
             return RightRotate(n);
         }
-        if (balanceFactor < -1 && key.CompareTo(n.Left.Key) < 0) {
+        if (balanceFactor < -1 && key.CompareTo(n.Right.Key) < 0) {
             n.Right = RightRotate(n.Right);
             return LeftRotate(n);
         }
@@ -175,7 +184,7 @@ class Program
 {
     static void Main()
     {
-        test_4();
+        test_5();
     }
     
     // recursive bst deletion
@@ -191,8 +200,8 @@ class Program
         tree.Add(65, "hello");
         
         tree.printInorder();
-        tree.Remove(30);
-        tree.printInorder();
+        // tree.Remove(30);
+        tree.printPreorder();
     }
     // General test for Add, Remove with 50 random elements
     static void test_2() {
@@ -224,7 +233,7 @@ class Program
         tree.Add(15, "hello");
         tree.Add(25, "hello");
         tree.printPreorder();
-        tree._root = tree.RightRotate(tree._root);
+        // tree._root = tree.RightRotate(tree._root);
         tree.printPreorder();
     }
     
@@ -239,7 +248,54 @@ class Program
         tree.Add(75, "hello");
         tree.Add(85, "hello");
         tree.printPreorder();
-        tree._root = tree.LeftRotate(tree._root);
+        // tree._root = tree.LeftRotate(tree._root);
+        tree.printPreorder();
+    }
+    
+    // Add with balancing testing
+    static void test_5()
+    {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        tree.Add(20, "hello");
+        tree.Add(30, "hello");
+        tree.Add(40, "hello");
+        tree.Add(50, "hello");
+        tree.Add(60, "hello");
+        tree.Add(70, "hello");
+        tree.Add(80, "hello");
+        tree.Add(65, "hello");
+        
+        tree.printInorder();
+        tree.printPreorder();
+        WriteLine(" ");
+        
+        
+        tree = new AVL_TREE<int, string>();
+        tree.Add(80, "hello");
+        tree.Add(70, "hello");
+        tree.Add(60, "hello");
+        tree.Add(50, "hello");
+        tree.Add(40, "hello");
+        tree.Add(30, "hello");
+        tree.Add(20, "hello");
+        tree.Add(65, "hello");
+        
+        tree.printInorder();
+        tree.printPreorder();
+        WriteLine(" ");
+        
+        
+        tree = new AVL_TREE<int, string>();
+        tree.Add(50, "hello");
+        tree.Add(30, "hello");
+        tree.Add(40, "hello");
+        tree.printInorder();
+        tree.printPreorder();
+        WriteLine(" ");
+        
+        tree.Add(35, "hello");
+        tree.Add(32, "hello");
+        tree.printInorder();
         tree.printPreorder();
     }
 }
