@@ -52,7 +52,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
         WriteLine();
     }
     
-    private static int get_max(Node<TK, TV>? a, Node<TK, TV>? b) {
+    private static int get_max_height(Node<TK, TV>? a, Node<TK, TV>? b) {
         if (a == null && b == null) {
             return 0;
         }
@@ -73,8 +73,8 @@ class AVL_TREE<TK, TV> where TK:IComparable
         a.Left = new_r.Right;
         new_r.Right = a;
 
-        new_r.Right.height = get_max(new_r.Right.Left, new_r.Right.Right) + 1;
-        new_r.height = get_max(new_r.Left, new_r.Right) + 1;
+        new_r.Right.height = get_max_height(new_r.Right.Left, new_r.Right.Right) + 1;
+        new_r.height = get_max_height(new_r.Left, new_r.Right) + 1;
         return new_r;
     }
     
@@ -84,8 +84,8 @@ class AVL_TREE<TK, TV> where TK:IComparable
         a.Right = new_r.Left;
         new_r.Left = a;
         
-        new_r.Left.height = get_max(new_r.Left.Left, new_r.Left.Right) + 1;
-        new_r.height = get_max(new_r.Left, new_r.Right) + 1;
+        new_r.Left.height = get_max_height(new_r.Left.Left, new_r.Left.Right) + 1;
+        new_r.height = get_max_height(new_r.Left, new_r.Right) + 1;
         return new_r;
     }
 
@@ -115,7 +115,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
             n.Val = val;
         }
         
-        n.height = get_max(n.Left, n.Right) + 1;
+        n.height = get_max_height(n.Left, n.Right) + 1;
         int balanceFactor = CalcBalance(n);
 
         if (balanceFactor > 1 && key.CompareTo(n.Left.Key) < 0) {
@@ -152,11 +152,11 @@ class AVL_TREE<TK, TV> where TK:IComparable
         else
         {
             if (n.Left == null && n.Right == null)
-                return null;
+                n = null;
             else if (n.Left == null && n.Right != null)
-                return n.Right;
+                n = n.Right;
             else if (n.Left != null && n.Right == null)
-                return n.Left;
+                n = n.Left;
             else
             {
                 Node<TK, TV> temp_node = n.Right;
@@ -184,7 +184,7 @@ class Program
 {
     static void Main()
     {
-        test_5();
+        test_2();
     }
     
     // recursive bst deletion
