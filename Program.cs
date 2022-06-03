@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using static System.Console;
 
 class Node<TK, TV> {
@@ -209,10 +210,34 @@ class AVL_TREE<TK, TV> where TK:IComparable
         return true;
     }
 
-    // private static TV Get(TK key)
-    // {
-    //     
-    // }
+    public bool Contains(TK key) {
+        var n = _root;
+        while (n != null)
+        {
+            if (key.CompareTo(n.Key) == 0)
+                return true;
+            if (key.CompareTo(n.Key) < 0)
+                n = n.Left;
+            else
+                n = n.Right;
+        }
+        return false;
+    }
+
+    private TV Get(TK key)
+    {
+        var n = _root;
+        while (n != null)
+        {
+            if (key.CompareTo(n.Key) == 0)
+                return n.Val;
+            if (key.CompareTo(n.Key) < 0)
+                n = n.Left;
+            else
+                n = n.Right;
+        }
+        throw new System.Exception("Trying to get value of key which does not exist");
+    }
 
     public TV this[TK k]
     {
@@ -220,6 +245,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
             this._root = add_help(this._root, k, value);
             this.count++;
         }
+        get { return this.Get(k); }
     }
 }
 
