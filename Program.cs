@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System.Security.Cryptography;
+using static System.Console;
 
 class Node<TK, TV> {
     public TK Key;
@@ -19,10 +20,13 @@ class Node<TK, TV> {
 class AVL_TREE<TK, TV> where TK:IComparable
 {
     public Node<TK, TV>? _root;
+    private int count;
 
     public AVL_TREE() {
         this._root = null;
     }
+
+    public int Count => this.count;
 
     public void printInorder()
     {
@@ -201,7 +205,21 @@ class AVL_TREE<TK, TV> where TK:IComparable
     {
         // first call contains to see if key exists
         this._root = this.remove_help(this._root, key);
+        this.count--;
         return true;
+    }
+
+    // private static TV Get(TK key)
+    // {
+    //     
+    // }
+
+    public TV this[TK k]
+    {
+        set {
+            this._root = add_help(this._root, k, value);
+            this.count++;
+        }
     }
 }
 
@@ -209,7 +227,10 @@ class Program
 {
     static void Main()
     {
-        test_6();
+        // test_6();
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        tree[3] = "hi";
+        tree.printInorder();
     }
     
     // recursive bst deletion
