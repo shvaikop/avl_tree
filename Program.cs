@@ -141,6 +141,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
 
     private Node<TK, TV> remove_help(Node<TK, TV> n, TK key) {
         if (n == null) {
+            WriteLine(key);
             throw new System.Exception("Key to be deleted does not exist");
         }
         if (key.CompareTo(n.Key) < 0) {
@@ -164,10 +165,34 @@ class AVL_TREE<TK, TV> where TK:IComparable
                     temp_node = temp_node.Left;
                 TK temp_key = temp_node.Key;
                 TV temp_val = temp_node.Val;
-                this.Remove(temp_node.Key);
+                n.Right = remove_help(n.Right, temp_node.Key);
                 n.Key = temp_key;
                 n.Val = temp_val;
             }
+        }
+
+        if (n == null) {
+            return n;
+        }
+        else {
+            n.height = get_max_height(n.Left, n.Right) + 1;
+        }
+        int balanceFactor = CalcBalance(n);
+
+        if (balanceFactor > 1 && CalcBalance(n.Left) >= 0) {
+            return RightRotate(n);
+        }
+        if (balanceFactor > 1 && CalcBalance(n.Left) < 0) {
+            n.Left = LeftRotate(n.Left);
+            return RightRotate(n);
+        }
+        if (balanceFactor < -1 && CalcBalance(n.Right) <= 0) {
+            return LeftRotate(n);
+        }
+        
+        if (balanceFactor < -1 && CalcBalance(n.Right) > 0) {
+            n.Right = RightRotate(n.Right);
+            return LeftRotate(n);
         }
         return n;
     }
@@ -184,7 +209,7 @@ class Program
 {
     static void Main()
     {
-        test_2();
+        test_6();
     }
     
     // recursive bst deletion
@@ -297,5 +322,26 @@ class Program
         tree.Add(32, "hello");
         tree.printInorder();
         tree.printPreorder();
+    }
+
+    static void test_6()
+    {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        Random r = new Random(200);
+        for (int i = 0; i < 200; i++)
+        {
+            int num = r.Next(1000);
+            tree.Add(num, "hello");
+        }
+        tree.printInorder();
+        WriteLine(tree._root.height);
+        int[] to_remove = {1, 120, 122, 507, 655, 663, 721, 722, 735, 59, 44, 110, 761, 19, 891, 900, 
+            901, 914, 920, 966, 995, 946, 295, 547, 792, 720};
+        foreach (var i in to_remove)
+        {
+            tree.Remove(i);
+        }
+        tree.printInorder();
+        WriteLine(tree._root.height);
     }
 }
