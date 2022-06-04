@@ -142,7 +142,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
         return l - r;
     }
 
-    private static Node<TK,TV> add_help(Node<TK, TV> n, TK key, TV val) {
+    private Node<TK,TV> add_help(Node<TK, TV> n, TK key, TV val) {
         if (n == null) {
             return new Node<TK, TV>(key, val);
         }
@@ -155,6 +155,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
         }
         else {
             n.Val = val;
+            this.count--;
         }
         
         n.height = get_max_height(n.Left, n.Right) + 1;
@@ -241,7 +242,6 @@ class AVL_TREE<TK, TV> where TK:IComparable
 
     public bool Remove(TK key)
     {
-        // first call contains to see if key exists
         this._root = this.remove_help(this._root, key);
         this.count--;
         return true;
@@ -290,9 +290,21 @@ class Program
 {
     static void Main()
     {
-        // test_6();
+        test_2();
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
         tree[3] = "hi";
+        tree[-100] = "bye";
+        WriteLine(tree.Contains(3));
+        WriteLine(tree.Contains(20));
+        WriteLine(tree.Contains(-100));
+        tree[50] = "hello";
+        WriteLine(tree[-100]);
+        tree[-100] = "new";
+        WriteLine(tree[-100]);
+        WriteLine(tree[3]);
+        tree.Remove(50);
+        WriteLine(tree[50]);
+        // WriteLine(tree[70]);
         tree.printInorder();
     }
     
@@ -319,14 +331,18 @@ class Program
         for (int i = 0; i < 50; i++)
         {
             int num = r.Next(1000);
-            tree.Add(num, "hello");
+            tree[num] = "hello";
         }
+        WriteLine(tree.Count);
+        tree[122] = "hi";
+        WriteLine(tree.Count);
         tree.printInorder();
         tree.Remove(22);
         tree.Remove(122);
         tree.Remove(246);
         tree.Remove(720);
         tree.Remove(934);
+        WriteLine(tree.Count);
         tree.printInorder();
     }
     
