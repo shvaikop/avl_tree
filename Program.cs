@@ -29,7 +29,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
 
     public int Count => this.count;
 
-    public SortedDictionary<TK, TV> Items {
+    public IDictionary<TK,TV> Items {
         get {
             SortedDictionary<TK, TV> dict = new SortedDictionary<TK, TV>();
             void help(Node<TK, TV>? n) {
@@ -291,21 +291,7 @@ class Program
     static void Main()
     {
         test_2();
-        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
-        tree[3] = "hi";
-        tree[-100] = "bye";
-        WriteLine(tree.Contains(3));
-        WriteLine(tree.Contains(20));
-        WriteLine(tree.Contains(-100));
-        tree[50] = "hello";
-        WriteLine(tree[-100]);
-        tree[-100] = "new";
-        WriteLine(tree[-100]);
-        WriteLine(tree[3]);
-        tree.Remove(50);
-        WriteLine(tree[50]);
-        // WriteLine(tree[70]);
-        tree.printInorder();
+        
     }
     
     // recursive bst deletion
@@ -333,6 +319,10 @@ class Program
             int num = r.Next(1000);
             tree[num] = "hello";
         }
+        IDictionary<int, string> dict = tree.Items;
+        WriteLine($"dict contains {dict.Count} items");
+        WriteLine($"{dict.ContainsKey(122)}");
+        WriteLine($"{dict.ContainsKey(-100)}");
         WriteLine(tree.Count);
         tree[122] = "hi";
         WriteLine(tree.Count);
@@ -443,5 +433,24 @@ class Program
         }
         tree.printInorder();
         WriteLine(tree._root.height);
+    }
+
+    static void test_7()
+    {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        tree[3] = "hi";
+        tree[-100] = "bye";
+        WriteLine(tree.Contains(3));
+        WriteLine(tree.Contains(20));
+        WriteLine(tree.Contains(-100));
+        tree[50] = "hello";
+        WriteLine(tree[-100]);
+        tree[-100] = "new";
+        WriteLine(tree[-100]);
+        WriteLine(tree[3]);
+        tree.Remove(50);
+        WriteLine(tree[50]);
+        // WriteLine(tree[70]);
+        tree.printInorder();
     }
 }
