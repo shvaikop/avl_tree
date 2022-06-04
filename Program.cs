@@ -49,6 +49,10 @@ class AVL_TREE<TK, TV> where TK:IComparable
             var list = new List<TV>();
 
             void help(Node<TK, TV>? n) {
+                if (n == null)
+                {
+                    return;
+                }
                 if (n.Key.CompareTo(min) >= 0 && n.Key.CompareTo(max) <= 0) {
                     list.Add(n.Val);
                     help(n.Left);
@@ -290,7 +294,7 @@ class Program
 {
     static void Main()
     {
-        test_2();
+        test_8();
         
     }
     
@@ -334,6 +338,12 @@ class Program
         tree.Remove(934);
         WriteLine(tree.Count);
         tree.printInorder();
+        
+        tree = new AVL_TREE<int, string>();
+        dict = tree.Items;
+        WriteLine($"dict contains {dict.Count} items");
+        WriteLine($"{dict.ContainsKey(122)}");
+        WriteLine($"{dict.ContainsKey(-100)}");
     }
     
     // Right rotate test
@@ -452,5 +462,23 @@ class Program
         WriteLine(tree[50]);
         // WriteLine(tree[70]);
         tree.printInorder();
+    }
+
+    static void test_8()
+    {
+        AVL_TREE<int, int> tree = new AVL_TREE<int, int>();
+        Random r = new Random(200);
+        for (int i = 0; i < 50; i++)
+        {
+            int num = r.Next(1000);
+            tree[num] = num;
+        }
+        tree.printInorder();
+        IEnumerable<int> set = tree[0, 500];
+        foreach (var x in set)
+        {
+            Write($"{x} ");
+        }
+        WriteLine();
     }
 }
