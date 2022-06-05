@@ -73,7 +73,7 @@ class BinSearchTree<TK, TV> where TK:IComparable
         }
     }
     
-    private Node<TK,TV> add_help(Node<TK, TV> n, TK key, TV val) {
+    private Node<TK,TV> add_help(Node<TK, TV>? n, TK key, TV val) {
         if (n == null) {
             return new Node<TK, TV>(key, val);
         }
@@ -368,7 +368,8 @@ class Program
     static void Main()
     {
         // test_8();
-        experiment_2();
+        experiment_3();
+        
     }
 
     static void experiment_1()
@@ -427,6 +428,61 @@ class Program
         }
         end = DateTime.Now;
         WriteLine($"Time to insert 100,000 elements into Simple BST is {(end - start).TotalMilliseconds} milliseconds");
+    }
+
+    static void experiment_3()
+    {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        SortedDictionary<int, string> dict = new SortedDictionary<int, string>();
+        BinSearchTree<int, string> bin_tree = new BinSearchTree<int, string>();
+        
+        List<int> ls = new List<int>();     // list of elements to add
+        for (int i = 0; i < 100_000; i++)
+        {
+            ls.Add(i);
+        }
+        Random r = new Random(999);
+        var shuffled = ls.OrderBy(_ => r.Next()).ToList();  // shuffle the list
+        foreach (var x in shuffled)     // add elements to each tree
+        {
+            bin_tree[x] = "hello";
+            tree[x] = "hello";
+            dict.Add(x, "hello");
+        }
+        
+        r = new Random(211);                    // Get elements to Get
+        List<int> vals_to_get = new List<int>();
+        for (int i = 0; i < 10_000; i++)
+        {
+            vals_to_get.Add(r.Next(100_000));
+        }
+        
+        DateTime start = DateTime.Now;
+        foreach (var x in vals_to_get)
+        {
+            var y = tree[x];
+        }
+        DateTime end = DateTime.Now;
+        WriteLine($"Time to get 10,000 random elements out of 100,000 element from" +
+                  $" my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
+        
+        start = DateTime.Now;
+        foreach (var x in vals_to_get)
+        {
+            var y = bin_tree[x];
+        }
+        end = DateTime.Now;
+        WriteLine($"Time to get 10,000 random elements out of 100,000 element from" +
+                  $" Simple BST is {(end - start).TotalMilliseconds} milliseconds");
+        
+        start = DateTime.Now;
+        foreach (var x in vals_to_get)
+        {
+            var y = dict[x];
+        }
+        end = DateTime.Now;
+        WriteLine($"Time to get 10,000 random elements out of 100,000 element from" +
+                  $" C# SortedDict is {(end - start).TotalMilliseconds} milliseconds");
     }
     
     // recursive bst deletion
