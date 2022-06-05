@@ -31,7 +31,7 @@ class Node<TK, TV> {
 
 
 class BinSearchTree<TK, TV> : I_BST<TK,TV> where TK:IComparable {
-    public Node<TK, TV>? _root;
+    protected Node<TK, TV>? _root;
     protected int count;
 
     public BinSearchTree() {
@@ -653,14 +653,14 @@ class Program {
             tree[num] = "hello";
         }
         tree.printInorder();
-        WriteLine(tree._root.height);   // _root field should be made public!!!
+        // WriteLine(tree._root.height);   // _root field should be made public!!!
         int[] to_remove = {1, 120, 122, 507, 655, 663, 721, 722, 735, 59, 44, 110, 761, 19, 891, 900, 
             901, 914, 920, 966, 995, 946, 295, 547, 792, 720};
         foreach (var i in to_remove) {
             tree.Remove(i);
         }
         tree.printInorder();
-        WriteLine(tree._root.height);
+        // WriteLine(tree._root.height);
     }
     
     // general test, Contains, Remove
