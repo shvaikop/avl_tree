@@ -18,17 +18,20 @@ class Node<TK, TV> {
     }
 }
 
-class AVL_TREE<TK, TV> where TK:IComparable
+
+class BinSearchTree<TK, TV> where TK:IComparable
 {
     public Node<TK, TV>? _root;
-    private int count;
+    protected int count;
 
-    public AVL_TREE() {
+    public BinSearchTree()
+    {
         this._root = null;
+        this.count = 0;
     }
-
+    
     public int Count => this.count;
-
+    
     public IDictionary<TK,TV> Items {
         get {
             SortedDictionary<TK, TV> dict = new SortedDictionary<TK, TV>();
@@ -43,7 +46,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
             return dict;
         }
     }
-
+    
     public IEnumerable<TV> this[TK min, TK max] {
         get {
             var list = new List<TV>();
@@ -69,7 +72,103 @@ class AVL_TREE<TK, TV> where TK:IComparable
             return list;
         }
     }
+    
+    private Node<TK,TV> add_help(Node<TK, TV> n, TK key, TV val) {
+        if (n == null) {
+            return new Node<TK, TV>(key, val);
+        }
 
+        if (key.CompareTo(n.Key) < 0) {
+            n.Left = add_help(n.Left, key, val);
+        }
+        else if (key.CompareTo(n.Key) > 0) {
+            n.Right = add_help(n.Right, key, val);
+        }
+        else {
+            n.Val = val;
+            this.count--;
+        }
+        return n;
+    }
+    
+    private Node<TK, TV> remove_help(Node<TK, TV> n, TK key) {
+        if (n == null) {
+            WriteLine(key);
+            throw new System.Exception("Key to be deleted does not exist");
+        }
+        if (key.CompareTo(n.Key) < 0) {
+            n.Left = this.remove_help(n.Left, key);
+        }
+        else if (key.CompareTo(n.Key) > 0) {
+            n.Right = this.remove_help(n.Right, key);
+        }
+        else
+        {
+            if (n.Left == null && n.Right == null)
+                n = null;
+            else if (n.Left == null && n.Right != null)
+                n = n.Right;
+            else if (n.Left != null && n.Right == null)
+                n = n.Left;
+            else
+            {
+                Node<TK, TV> temp_node = n.Right;
+                while (temp_node.Left != null)
+                    temp_node = temp_node.Left;
+                TK temp_key = temp_node.Key;
+                TV temp_val = temp_node.Val;
+                n.Right = remove_help(n.Right, temp_node.Key);
+                n.Key = temp_key;
+                n.Val = temp_val;
+            }
+        }
+        return n;
+    }
+
+    public virtual bool Remove(TK key)
+    {
+        this._root = this.remove_help(this._root, key);
+        return true;
+    }
+    
+    protected TV Get(TK key)
+    {
+        var n = _root;
+        while (n != null)
+        {
+            if (key.CompareTo(n.Key) == 0)
+                return n.Val;
+            if (key.CompareTo(n.Key) < 0)
+                n = n.Left;
+            else
+                n = n.Right;
+        }
+        throw new System.Exception("Trying to get value of key which does not exist");
+    }
+
+    public virtual TV this[TK k]
+    {
+        set {
+            this._root = add_help(this._root, k, value);
+            this.count++;
+        }
+        get { return this.Get(k); }
+    }
+    
+    public bool Contains(TK key) {
+        var n = _root;
+        while (n != null)
+        {
+            if (key.CompareTo(n.Key) == 0)
+                return true;
+            if (key.CompareTo(n.Key) < 0)
+                n = n.Left;
+            else
+                n = n.Right;
+        }
+        return false;
+    }
+    
     public void printInorder()
     {
         void help(Node<TK, TV> n)
@@ -97,8 +196,13 @@ class AVL_TREE<TK, TV> where TK:IComparable
         help(this._root);
         WriteLine();
     }
+}
+
+class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> where TK:IComparable
+{
+    public AVL_TREE() : base() { }
     
-    private static int get_max_height(Node<TK, TV>? a, Node<TK, TV>? b) {
+    private int get_max_height(Node<TK, TV>? a, Node<TK, TV>? b) {
         if (a == null && b == null) {
             return 0;
         }
@@ -113,7 +217,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
         }
     }
 
-    public static Node<TK, TV> RightRotate(Node<TK, TV> a)
+    private Node<TK, TV> RightRotate(Node<TK, TV> a)
     {
         var new_r = a.Left;
         a.Left = new_r.Right;
@@ -124,7 +228,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
         return new_r;
     }
     
-    public static Node<TK, TV> LeftRotate(Node<TK, TV> a)
+    private Node<TK, TV> LeftRotate(Node<TK, TV> a)
     {
         var new_r = a.Right;
         a.Right = new_r.Left;
@@ -135,7 +239,7 @@ class AVL_TREE<TK, TV> where TK:IComparable
         return new_r;
     }
 
-    private static int CalcBalance(Node<TK, TV> n)
+    private int CalcBalance(Node<TK, TV> n)
     {
         if (n == null)
         {
@@ -180,10 +284,6 @@ class AVL_TREE<TK, TV> where TK:IComparable
             return LeftRotate(n);
         }
         return n;
-    }
-
-    public void Add(TK key, TV val) {
-        this._root = add_help(this._root, key, val);
     }
 
     private Node<TK, TV> remove_help(Node<TK, TV> n, TK key) {
@@ -244,43 +344,14 @@ class AVL_TREE<TK, TV> where TK:IComparable
         return n;
     }
 
-    public bool Remove(TK key)
+    public override bool Remove(TK key)
     {
         this._root = this.remove_help(this._root, key);
         this.count--;
         return true;
     }
-
-    public bool Contains(TK key) {
-        var n = _root;
-        while (n != null)
-        {
-            if (key.CompareTo(n.Key) == 0)
-                return true;
-            if (key.CompareTo(n.Key) < 0)
-                n = n.Left;
-            else
-                n = n.Right;
-        }
-        return false;
-    }
-
-    private TV Get(TK key)
-    {
-        var n = _root;
-        while (n != null)
-        {
-            if (key.CompareTo(n.Key) == 0)
-                return n.Val;
-            if (key.CompareTo(n.Key) < 0)
-                n = n.Left;
-            else
-                n = n.Right;
-        }
-        throw new System.Exception("Trying to get value of key which does not exist");
-    }
-
-    public TV this[TK k]
+    
+    public override TV this[TK k]
     {
         set {
             this._root = add_help(this._root, k, value);
@@ -290,28 +361,88 @@ class AVL_TREE<TK, TV> where TK:IComparable
     }
 }
 
+
+
 class Program
 {
     static void Main()
     {
-        test_8();
+        // test_8();
+        experiment_2();
+    }
+
+    static void experiment_1()
+    {
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        SortedDictionary<int, string> dict = new SortedDictionary<int, string>();
+        DateTime start = DateTime.Now;
+        for (int i = 0; i < 100_000; i++)
+        {
+            tree[i] = "hello";
+        }
+        DateTime end = DateTime.Now;
+        WriteLine($"Time to insert 100,000 elements into my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
         
+        start = DateTime.Now;
+        for (int i = 0; i < 100_000; i++)
+        {
+            dict.Add(i, "hello");
+        }
+        end = DateTime.Now;
+        WriteLine($"Time to insert 100,000 elements into c# SortedDictionary is {(end - start).TotalMilliseconds} milliseconds");
+    }
+
+    static void experiment_2()
+    {
+        BinSearchTree<int, string> bin_tree = new BinSearchTree<int, string>();
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
+        SortedDictionary<int, string> dict = new SortedDictionary<int, string>();
+        Random r = new Random(200);
+        DateTime start = DateTime.Now;
+        for (int i = 0; i < 100_000; i++)
+        {
+            tree[r.Next(100_000)] = "hello";
+        }
+        DateTime end = DateTime.Now;
+        WriteLine($"Time to insert 100,000 elements into my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
+        
+        start = DateTime.Now;
+        for (int i = 0; i < 100_000; i++)
+        {
+            int num = r.Next(100_000);
+            try {
+                dict.Add(num, "hello");
+            }
+            catch (ArgumentException) {
+                continue;
+            }
+        }
+        end = DateTime.Now;
+        WriteLine($"Time to insert 100,000 elements into c# SortedDictionary is {(end - start).TotalMilliseconds} milliseconds");
+        
+        start = DateTime.Now;
+        for (int i = 0; i < 100_000; i++)
+        {
+            bin_tree[r.Next(100_000)] = "hello";
+        }
+        end = DateTime.Now;
+        WriteLine($"Time to insert 100,000 elements into Simple BST is {(end - start).TotalMilliseconds} milliseconds");
     }
     
     // recursive bst deletion
     static void test_1() {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
-        tree.Add(50, "hello");
-        tree.Add(30, "hello");
-        tree.Add(70, "hello");
-        tree.Add(20, "hello");
-        tree.Add(40, "hello");
-        tree.Add(60, "hello");
-        tree.Add(80, "hello");
-        tree.Add(65, "hello");
+        tree[50] = "hello";
+        tree[30] = "hello";
+        tree[70] = "hello";
+        tree[20] = "hello";
+        tree[40] = "hello";
+        tree[60] = "hello";
+        tree[80] = "hello";
+        tree[65] = "hello";
         
         tree.printInorder();
-        // tree.Remove(30);
+        tree.Remove(30);
         tree.printPreorder();
     }
     // General test for Add, Remove with 50 random elements
@@ -324,9 +455,9 @@ class Program
             tree[num] = "hello";
         }
         IDictionary<int, string> dict = tree.Items;
-        WriteLine($"dict contains {dict.Count} items");
-        WriteLine($"{dict.ContainsKey(122)}");
-        WriteLine($"{dict.ContainsKey(-100)}");
+        WriteLine($"dict contains {dict.Count} items, tree contains {tree.Count}");
+        WriteLine($"{dict.ContainsKey(122)}"); //True
+        WriteLine($"{dict.ContainsKey(-100)}"); //False
         WriteLine(tree.Count);
         tree[122] = "hi";
         WriteLine(tree.Count);
@@ -350,13 +481,13 @@ class Program
     static void test_3()
     {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
-        tree.Add(50, "hello");
-        tree.Add(30, "hello");
-        tree.Add(70, "hello");
-        tree.Add(20, "hello");
-        tree.Add(40, "hello");
-        tree.Add(15, "hello");
-        tree.Add(25, "hello");
+        tree[50] = "hello";
+        tree[30] = "hello";
+        tree[70] = "hello";
+        tree[20] = "hello";
+        tree[40] = "hello";
+        tree[15] = "hello";
+        tree[25] = "hello";
         tree.printPreorder();
         // tree._root = tree.RightRotate(tree._root);
         tree.printPreorder();
@@ -365,13 +496,13 @@ class Program
     // Left rotate test
     static void test_4() {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
-        tree.Add(50, "hello");
-        tree.Add(30, "hello");
-        tree.Add(70, "hello");
-        tree.Add(60, "hello");
-        tree.Add(80, "hello");
-        tree.Add(75, "hello");
-        tree.Add(85, "hello");
+        tree[50] = "hello";
+        tree[30] = "hello";
+        tree[70] = "hello";
+        tree[60] = "hello";
+        tree[80] = "hello";
+        tree[75] = "hello";
+        tree[85] = "hello";
         tree.printPreorder();
         // tree._root = tree.LeftRotate(tree._root);
         tree.printPreorder();
@@ -380,61 +511,61 @@ class Program
     // Add with balancing testing
     static void test_5()
     {
-        AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
-        tree.Add(20, "hello");
-        tree.Add(30, "hello");
-        tree.Add(40, "hello");
-        tree.Add(50, "hello");
-        tree.Add(60, "hello");
-        tree.Add(70, "hello");
-        tree.Add(80, "hello");
-        tree.Add(65, "hello");
+        AVL_TREE<int, string> tree = new AVL_TREE<int, string>(); // accending order
+        tree[20] = "hello";
+        tree[30] = "hello";
+        tree[40] = "hello";
+        tree[50] = "hello";
+        tree[60] = "hello";
+        tree[70] = "hello";
+        tree[80] = "hello";
+        tree[65] = "hello";
         
         tree.printInorder();
         tree.printPreorder();
         WriteLine(" ");
         
         
+        tree = new AVL_TREE<int, string>();     // deccending order
+        tree[80] = "hello";
+        tree[70] = "hello";
+        tree[60] = "hello";
+        tree[50] = "hello";
+        tree[40] = "hello";
+        tree[30] = "hello";
+        tree[20] = "hello";
+        tree[65] = "hello";
+        
+        tree.printInorder();
+        tree.printPreorder();
+        WriteLine(" ");
+        
+        // testing double rotations
         tree = new AVL_TREE<int, string>();
-        tree.Add(80, "hello");
-        tree.Add(70, "hello");
-        tree.Add(60, "hello");
-        tree.Add(50, "hello");
-        tree.Add(40, "hello");
-        tree.Add(30, "hello");
-        tree.Add(20, "hello");
-        tree.Add(65, "hello");
-        
+        tree[50] = "hello";
+        tree[30] = "hello";
+        tree[40] = "hello";
         tree.printInorder();
         tree.printPreorder();
         WriteLine(" ");
         
-        
-        tree = new AVL_TREE<int, string>();
-        tree.Add(50, "hello");
-        tree.Add(30, "hello");
-        tree.Add(40, "hello");
-        tree.printInorder();
-        tree.printPreorder();
-        WriteLine(" ");
-        
-        tree.Add(35, "hello");
-        tree.Add(32, "hello");
+        tree[35] = "hello";
+        tree[32] = "hello";
         tree.printInorder();
         tree.printPreorder();
     }
 
-    static void test_6()
+    static void test_6()    // adding 200 elements, deleting a bunch, testing that height <= 1.44 * log2(n)
     {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
         Random r = new Random(200);
         for (int i = 0; i < 200; i++)
         {
             int num = r.Next(1000);
-            tree.Add(num, "hello");
+            tree[num] = "hello";
         }
         tree.printInorder();
-        WriteLine(tree._root.height);
+        WriteLine(tree._root.height);   // _root field should be made public!!!
         int[] to_remove = {1, 120, 122, 507, 655, 663, 721, 722, 735, 59, 44, 110, 761, 19, 891, 900, 
             901, 914, 920, 966, 995, 946, 295, 547, 792, 720};
         foreach (var i in to_remove)
@@ -450,16 +581,16 @@ class Program
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
         tree[3] = "hi";
         tree[-100] = "bye";
-        WriteLine(tree.Contains(3));
-        WriteLine(tree.Contains(20));
-        WriteLine(tree.Contains(-100));
+        WriteLine(tree.Contains(3));    //true
+        WriteLine(tree.Contains(20));   //false
+        WriteLine(tree.Contains(-100));     //true
         tree[50] = "hello";
         WriteLine(tree[-100]);
         tree[-100] = "new";
         WriteLine(tree[-100]);
         WriteLine(tree[3]);
         tree.Remove(50);
-        WriteLine(tree[50]);
+        WriteLine(tree[50]); // should result in an exception!!!
         // WriteLine(tree[70]);
         tree.printInorder();
     }
