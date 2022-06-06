@@ -99,7 +99,7 @@ class BinSearchTree<TK, TV> : I_BST<TK,TV> where TK:IComparable {
         return n;
     }
     
-    private Node<TK, TV> remove_help(Node<TK, TV> n, TK key) {
+    private Node<TK, TV>? remove_help(Node<TK, TV>? n, TK key) {
         if (n == null) {
             WriteLine(key);
             throw new System.Exception("Key to be deleted does not exist");
@@ -120,7 +120,11 @@ class BinSearchTree<TK, TV> : I_BST<TK,TV> where TK:IComparable {
                 n = n.Left;
             else
             {
-                Node<TK, TV> temp_node = n.Right;
+                Node<TK, TV>? temp_node = n.Right;
+                if (temp_node == null)
+                {
+                    throw new Exception("Null node where it shouldn't be");
+                }
                 while (temp_node.Left != null)
                     temp_node = temp_node.Left;
                 TK temp_key = temp_node.Key;
@@ -214,12 +218,19 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
             return a.height;
         }
         else {
+            if (a == null || b == null)
+            {
+                throw new Exception("Null nodes where they shouldn't be");
+            }
             return Math.Max(a.height, b.height);
         }
     }
 
     private Node<TK, TV> RightRotate(Node<TK, TV> a) {
         var new_r = a.Left;
+        if (new_r == null) {
+            throw new Exception("Null in right rotate");
+        }
         a.Left = new_r.Right;
         new_r.Right = a;
 
@@ -230,6 +241,9 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
     
     private Node<TK, TV> LeftRotate(Node<TK, TV> a) {
         var new_r = a.Right;
+        if (new_r == null) {
+            throw new Exception("Null in left rotate");
+        }
         a.Right = new_r.Left;
         new_r.Left = a;
         
@@ -266,24 +280,24 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
         n.height = get_max_height(n.Left, n.Right) + 1;
         int balanceFactor = CalcBalance(n);
 
-        if (balanceFactor > 1 && key.CompareTo(n.Left.Key) < 0) {
+        if (balanceFactor > 1 && key.CompareTo(n.Left!.Key) < 0) {
             return RightRotate(n);
         }
-        if (balanceFactor < -1 && key.CompareTo(n.Right.Key) > 0) {
+        if (balanceFactor < -1 && key.CompareTo(n.Right!.Key) > 0) {
             return LeftRotate(n);
         }
-        if (balanceFactor > 1 && key.CompareTo(n.Left.Key) > 0) {
+        if (balanceFactor > 1 && key.CompareTo(n.Left!.Key) > 0) {
             n.Left = LeftRotate(n.Left);
             return RightRotate(n);
         }
-        if (balanceFactor < -1 && key.CompareTo(n.Right.Key) < 0) {
+        if (balanceFactor < -1 && key.CompareTo(n.Right!.Key) < 0) {
             n.Right = RightRotate(n.Right);
             return LeftRotate(n);
         }
         return n;
     }
 
-    private Node<TK, TV> remove_help(Node<TK, TV> n, TK key) {
+    private Node<TK, TV>? remove_help(Node<TK, TV>? n, TK key) {
         if (n == null) {
             WriteLine(key);
             throw new System.Exception("Key to be deleted does not exist");
@@ -302,6 +316,9 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
             else if (n.Left != null && n.Right == null)
                 n = n.Left;
             else {
+                if (n.Right == null) {
+                    throw new Exception("Null where it should not be");
+                }
                 Node<TK, TV> temp_node = n.Right;
                 while (temp_node.Left != null)
                     temp_node = temp_node.Left;
@@ -325,7 +342,7 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
             return RightRotate(n);
         }
         if (balanceFactor > 1 && CalcBalance(n.Left) < 0) {
-            n.Left = LeftRotate(n.Left);
+            n.Left = LeftRotate(n.Left!);
             return RightRotate(n);
         }
         if (balanceFactor < -1 && CalcBalance(n.Right) <= 0) {
@@ -333,7 +350,7 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
         }
         
         if (balanceFactor < -1 && CalcBalance(n.Right) > 0) {
-            n.Right = RightRotate(n.Right);
+            n.Right = RightRotate(n.Right!);
             return LeftRotate(n);
         }
         return n;
@@ -358,16 +375,16 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
 
 class Program {
     static void Main() {
-        // experiment_1();
-        // experiment_11();
-        // experiment_2();
-        // experiment_3();
-        // test_1();
-        // test_2();
-        // test_5();
-        // test_6();
-        // test_7();
-        // test_8();
+        experiment_1();
+        experiment_11();
+        experiment_2();
+        experiment_3();
+        test_1();
+        test_2();
+        test_5();
+        test_6();
+        test_7();
+        test_8();
     }
     
     // Inserting 5_000 elements into the 3 trees
