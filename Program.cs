@@ -376,15 +376,15 @@ class AVL_TREE<TK, TV> : BinSearchTree<TK, TV> , I_BST<TK,TV> where TK:IComparab
 class Program {
     static void Main() {
         experiment_1();
-        experiment_11();
-        experiment_2();
-        experiment_3();
-        test_1();
-        test_2();
-        test_5();
-        test_6();
-        test_7();
-        test_8();
+        // experiment_11();
+        // experiment_2();
+        // experiment_3();
+        // test_1();
+        // test_2();
+        // test_5();
+        // test_6();
+        // test_7();
+        // test_8();
     }
     
     // Inserting 5_000 elements into the 3 trees
@@ -425,6 +425,8 @@ class Program {
         SortedDictionary<int, string> dict = new SortedDictionary<int, string>();
         DateTime start = DateTime.Now;
         DateTime end = DateTime.Now;
+        StreamWriter avl = new StreamWriter("avl_11.csv", append: true);
+        StreamWriter cs = new StreamWriter("cs_11.csv", append: true);
         for (int n = 10_000; n <= 100_000; n = n + 10_000)
         {
             tree = new AVL_TREE<int, string>();
@@ -437,6 +439,7 @@ class Program {
             end = DateTime.Now;
             WriteLine($"Time to insert {n} ascending order elements " +
                       $"into my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
+            avl.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
         
             start = DateTime.Now;
             for (int i = 0; i < n; i++) {
@@ -445,51 +448,86 @@ class Program {
             end = DateTime.Now;
             WriteLine($"Time to insert {n} ascending order" +
                       $" elements into c# SortedDictionary is {(end - start).TotalMilliseconds} milliseconds");
+            cs.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
         }
+        avl.Close();
+        cs.Close();
         
     }
     
     // Inserting 100_000 elements
-    static void experiment_2() {
-        BinSearchTree<int, string> bin_tree = new BinSearchTree<int, string>();
+    static void experiment_2()
+    {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
         SortedDictionary<int, string> dict = new SortedDictionary<int, string>();
-        Random r = new Random(200);
+        BinSearchTree<int, string> bin_tree = new BinSearchTree<int, string>();
+        
+        StreamWriter avl = new StreamWriter("avl_2.csv", append: true);
+        StreamWriter cs = new StreamWriter("cs_2.csv", append: true);
+        StreamWriter bst = new StreamWriter("bst_2.csv", append: true);
+
+        List<int> ls = new List<int>(); // list of elements to add
+        for (int i = 0; i < 100_000; i++)
+        {
+            ls.Add(i);
+        }
+
+        Random r = new Random(999);
         DateTime start = DateTime.Now;
-        for (int i = 0; i < 100_000; i++) {
-            tree[r.Next(100_000)] = "hello";
-        }
         DateTime end = DateTime.Now;
-        WriteLine($"Time to insert 100,000 elements in random order" +
-                  $" into my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
-        
-        start = DateTime.Now;
-        for (int i = 0; i < 100_000; i++) {
-            int num = r.Next(100_000);
-            try {
-                dict.Add(num, "hello");
+        var shuffled = ls.OrderBy(_ => r.Next()).ToList(); // shuffle the list
+        for (int n = 10_000; n < 100_000; n += 10_000)
+        {
+            tree = new AVL_TREE<int, string>();
+            dict = new SortedDictionary<int, string>();
+            bin_tree = new BinSearchTree<int, string>();
+            
+            start = DateTime.Now;
+            for (int i = 0; i < n; i++)
+            {
+                tree[shuffled[i]] = "hello";
             }
-            catch (ArgumentException) {
-                continue;
+
+            end = DateTime.Now;
+            WriteLine($"Time to insert {n} elements in random order" +
+                      $" into my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
+            avl.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
+
+            start = DateTime.Now;
+            for (int i = 0; i < n; i++)
+            {
+                dict.Add(shuffled[i], "hello");
             }
+
+            end = DateTime.Now;
+            WriteLine($"Time to insert {n} elements in random order" +
+                      $" into c# SortedDictionary is {(end - start).TotalMilliseconds} milliseconds");
+            cs.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
+
+            start = DateTime.Now;
+            for (int i = 0; i < n; i++)
+            {
+                bin_tree[shuffled[i]] = "hello";
+            }
+            end = DateTime.Now;
+            WriteLine($"Time to insert {n} in random order" +
+                      $" elements into Simple BST is {(end - start).TotalMilliseconds} milliseconds");
+            bst.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
+
         }
-        end = DateTime.Now;
-        WriteLine($"Time to insert 100,000 elements in random order" +
-                  $" into c# SortedDictionary is {(end - start).TotalMilliseconds} milliseconds");
-        
-        start = DateTime.Now;
-        for (int i = 0; i < 100_000; i++) {
-            bin_tree[r.Next(100_000)] = "hello";
-        }
-        end = DateTime.Now;
-        WriteLine($"Time to insert 100,000 in random order" +
-                  $" elements into Simple BST is {(end - start).TotalMilliseconds} milliseconds");
+        avl.Close();
+        cs.Close();
+        bst.Close();
     }
 
     static void experiment_3() {
         AVL_TREE<int, string> tree = new AVL_TREE<int, string>();
         SortedDictionary<int, string> dict = new SortedDictionary<int, string>();
         BinSearchTree<int, string> bin_tree = new BinSearchTree<int, string>();
+        
+        StreamWriter avl = new StreamWriter("avl_3.csv", append: true);
+        StreamWriter cs = new StreamWriter("cs_3.csv", append: true);
+        StreamWriter bst = new StreamWriter("bst_3.csv", append: true);
         
         List<int> ls = new List<int>();     // list of elements to add
         for (int i = 0; i < 100_000; i++) {
@@ -506,7 +544,7 @@ class Program {
         r = new Random(211);                    // Get elements to Get
         List<int> vals_to_get = new List<int>();
         for (int i = 0; i < 100_000; i++) {
-            vals_to_get.Add(r.Next(100_000));
+            vals_to_get.Add(r.Next(0,100_000));
         }
         DateTime start = DateTime.Now;
         DateTime end = DateTime.Now;
@@ -519,6 +557,7 @@ class Program {
             end = DateTime.Now;
             WriteLine($"Time to get {n} random elements out of 100,000 element from" +
                       $" my AVL tree is {(end - start).TotalMilliseconds} milliseconds");
+            avl.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
         
             start = DateTime.Now;
             for (int i = 0; i < n; i++) {
@@ -527,6 +566,7 @@ class Program {
             end = DateTime.Now;
             WriteLine($"Time to get {n} random elements out of 100,000 element from" +
                       $" Simple BST is {(end - start).TotalMilliseconds} milliseconds");
+            bst.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
         
             start = DateTime.Now;
             for (int i = 0; i < n; i++) {
@@ -535,7 +575,11 @@ class Program {
             end = DateTime.Now;
             WriteLine($"Time to get {n} random elements out of 100,000 element from" +
                       $" C# SortedDict is {(end - start).TotalMilliseconds} milliseconds");
+            cs.WriteLine($"{n}, {(end - start).TotalMilliseconds}");
         }
+        avl.Close();
+        cs.Close();
+        bst.Close();
     }
     
     // recursive bst deletion
